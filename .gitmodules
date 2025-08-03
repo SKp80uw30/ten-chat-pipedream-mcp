@@ -1,0 +1,6 @@
+[submodule "ten-framework"]
+	path = ten-framework
+	url = https://github.com/TEN-framework/ten-framework.git
+[submodule "pipedream-mcp-reference"]
+	path = pipedream-mcp-reference
+	url = https://github.com/PipedreamHQ/mcp.git

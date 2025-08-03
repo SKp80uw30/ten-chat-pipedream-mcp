@@ -1,0 +1,13 @@
+{
+  "name": "pipedream-mcp-integration",
+  "version": "1.0.0",
+  "description": "MCP integration for Pipedream workflows",
+  "main": "pipedream-client.js",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

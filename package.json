@@ -1,0 +1,32 @@
+{
+  "name": "ten-mcp-voice-agent",
+  "version": "1.0.0",
+  "description": "Voice AI agent with MCP integration for Railway deployment",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd playground && npm start -- --hostname 0.0.0.0 --port ${PORT:-49483}",
+    "build": "npm install && npm run build-playground && npm run build-mcp",
+    "build-playground": "cd playground && npm install && npm run build",
+    "build-mcp": "cd mcp-integration && npm install",
+    "dev": "cd playground && npm run dev",
+    "railway:deploy": "railway up",
+    "postinstall": "cd mcp-integration && npm install && cd ../playground && npm install"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "voice-ai",
+    "mcp",
+    "pipedream",
+    "ten-framework",
+    "railway"
+  ]
+}
