@@ -14,8 +14,8 @@ else
 fi
 
 # Set environment variables for TEN Agent (loaded from Doppler)
-export AGORA_APP_ID=${AGORA_APP_ID}
-export AGORA_APP_CERTIFICATE=${AGORA_APP_CERTIFICATE}
+export JITSI_DOMAIN=${JITSI_DOMAIN:-meet.jit.si}
+export JITSI_ROOM_PREFIX=${JITSI_ROOM_PREFIX:-ten-agent}
 export OPENAI_API_KEY=${OPENAI_API_KEY}
 export OPENAI_TTS_MODEL=${OPENAI_TTS_MODEL:-tts-1}
 export OPENAI_TTS_VOICE=${OPENAI_TTS_VOICE:-alloy}
@@ -27,8 +27,6 @@ export JWT_SECRET=${JWT_SECRET}
 
 # Validate required environment variables
 required_vars=(
-    "AGORA_APP_ID"
-    "AGORA_APP_CERTIFICATE" 
     "OPENAI_API_KEY"
     "DEEPGRAM_API_KEY"
     "PIPEDREAM_API_KEY"

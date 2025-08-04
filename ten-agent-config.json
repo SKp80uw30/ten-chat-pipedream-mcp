@@ -14,8 +14,16 @@
     }
   ],
   "rtc": {
-    "agora_app_id": "${AGORA_APP_ID}",
-    "agora_app_certificate": "${AGORA_APP_CERTIFICATE}"
+    "provider": "jitsi",
+    "jitsi_domain": "${JITSI_DOMAIN:-meet.jit.si}",
+    "jitsi_room_prefix": "${JITSI_ROOM_PREFIX:-ten-agent}",
+    "jitsi_config": {
+      "enableWelcomePage": false,
+      "enableClosePage": false,
+      "disableInviteFunctions": true,
+      "startWithAudioMuted": false,
+      "startWithVideoMuted": true
+    }
   },
   "llm": {
     "provider": "openai",
