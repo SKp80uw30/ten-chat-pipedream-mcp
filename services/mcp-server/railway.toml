@@ -9,6 +9,4 @@ healthcheckTimeout = 30
 
 [env]
 NODE_ENV = "production"
-DOPPLER_PROJECT = "ten-chat-pipedream-mcp"
-DOPPLER_CONFIG = "mcp-server-prd"
 SERVICE_TYPE = "mcp-server"

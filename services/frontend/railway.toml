@@ -10,5 +10,5 @@ healthcheckTimeout = 30
 [env]
 NODE_ENV = "production"
 DOPPLER_PROJECT = "ten-chat-pipedream-mcp"
-DOPPLER_CONFIG = "frontend-prd"
+DOPPLER_CONFIG = "prd"
 SERVICE_TYPE = "frontend"

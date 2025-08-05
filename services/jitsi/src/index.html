@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jitsi Meet - TEN Framework Integration</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .status { 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+            background: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+        }
+        h1 { color: #333; }
+        .feature-list { 
+            list-style: none; 
+            padding: 0; 
+        }
+        .feature-list li { 
+            padding: 8px; 
+            margin: 4px 0; 
+            background: #f8f9fa; 
+            border-radius: 4px; 
+        }
+        .feature-list li:before { 
+            content: "🎥 "; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Jitsi Meet Service - TEN Framework</h1>
+        <div class="status">✅ Jitsi Service Running</div>
+        
+        <h2>WebRTC Integration</h2>
+        <p>This service provides WebRTC capabilities for the TEN Framework voice AI agent, 
+        replacing expensive Agora services with free, open-source Jitsi Meet.</p>
+        
+        <h2>Features</h2>
+        <ul class="feature-list">
+            <li>Free & Open Source WebRTC</li>
+            <li>No API keys or subscription costs</li>
+            <li>Self-hostable infrastructure</li>
+            <li>Compatible with TEN Framework</li>
+            <li>Optimized for voice AI interactions</li>
+        </ul>
+        
+        <h2>Integration Status</h2>
+        <div class="status">🔗 Ready for TEN Framework Integration</div>
+        
+        <h2>Configuration</h2>
+        <p><strong>Domain:</strong> <code id="domain">Loading...</code></p>
+        <p><strong>Room Prefix:</strong> <code>ten-agent</code></p>
+        
+        <p>
+            <a href="/health">Health Check</a> | 
+            <a href="https://github.com/SKp80uw30/ten-chat-pipedream-mcp">GitHub Repository</a>
+        </p>
+    </div>
+    
+    <script>
+        // Update domain from current URL
+        document.getElementById('domain').textContent = window.location.hostname;
+        
+        // Basic health check
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => console.log('Health check:', data))
+            .catch(error => console.error('Health check failed:', error));
+    </script>
+</body>
+</html>
