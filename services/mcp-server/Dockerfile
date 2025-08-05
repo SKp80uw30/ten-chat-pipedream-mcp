@@ -2,20 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install system dependencies and Doppler CLI
-RUN apk add --no-cache curl bash && \
-    curl -Ls https://cli.doppler.com/install.sh | sh
+# Install system dependencies
+RUN apk add --no-cache curl bash
 
-# Initialize package.json and install latest MCP SDK
-RUN npm init -y && \
-    npm install @modelcontextprotocol/sdk@latest express@latest cors@latest
-
-# Copy MCP integration source
-COPY ../../mcp-integration/ ./
-COPY src/ ./
-
-# Install dependencies (will use latest versions)
+# Create package.json
+COPY package.json ./
 RUN npm install
+
+# Copy source files
+COPY src/ ./
 
 # Expose port (Railway will set PORT env var)
 EXPOSE $PORT
@@ -24,5 +19,5 @@ EXPOSE $PORT
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:$PORT/health || exit 1
 
-# Start with environment loading
-CMD ["sh", "-c", "eval \"$(doppler secrets download --no-file --format=export --project=ten-chat-pipedream-mcp --config=mcp-server-prd)\" && node server.js"]
+# Start server
+CMD ["node", "server.js"]
