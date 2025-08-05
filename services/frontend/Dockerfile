@@ -31,4 +31,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:$PORT/api/health || exit 1
 
 # Start with environment loading
-CMD ["sh", "-c", "eval \"$(doppler secrets download --no-file --format=export --project=ten-chat-pipedream-mcp --config=frontend-prd)\" && npm start -- --hostname 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "eval \"$(doppler secrets download --no-file --format=export --project=ten-chat-pipedream-mcp --config=prd)\" && npm start -- --hostname 0.0.0.0 --port $PORT"]

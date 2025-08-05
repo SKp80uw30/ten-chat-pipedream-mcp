@@ -62,8 +62,7 @@ doppler run --project ten-chat-pipedream-mcp --config prd -- <command>
 ## Environment Variables
 
 **Critical Variables (Required):**
-- `OPENAI_API_KEY` - OpenAI for LLM and TTS
-- `DEEPGRAM_API_KEY` - Speech recognition 
+- `OPENAI_API_KEY` - OpenAI for LLM, TTS, and ASR (Whisper)
 - `PIPEDREAM_API_KEY` - Workflow automation
 - `PIPEDREAM_PROJECT_ID` - Pipedream project identifier
 
@@ -83,7 +82,7 @@ All environment variables are managed through **Doppler project: `ten-chat-piped
 ### Agent Configuration Pattern
 The `ten-agent-config.json` defines the agent's capabilities:
 - **LLM Provider**: OpenAI GPT-4 for conversation
-- **ASR Provider**: Deepgram for speech-to-text
+- **ASR Provider**: OpenAI Whisper for speech-to-text
 - **TTS Provider**: OpenAI for text-to-speech  
 - **RTC Provider**: Jitsi Meet for WebRTC (replaced Agora)
 - **Extensions**: MCP integration for workflow tools

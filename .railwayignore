@@ -1,0 +1,30 @@
+# Exclude large directories that cause upload timeouts
+ten-framework/
+node_modules/
+*.log
+.DS_Store
+**/.DS_Store
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+.next/
+
+# Testing
+coverage/
+.nyc_output
+
+# Documentation (keep essential ones)
+*.md
+!README.md
+!CLAUDE.md
+
+# Temporary directories
+tmp/
+temp/
+clean-deploy/
