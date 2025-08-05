@@ -1,0 +1,208 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        default: 'false'
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: mcp-integration/package-lock.json
+        
+    - name: Configure git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+    - name: Update TEN Framework submodule
+      run: |
+        echo "Updating TEN Framework submodule..."
+        git submodule update --remote ten-framework
+        
+        if ! git diff --quiet ten-framework; then
+          git add ten-framework
+          git commit -m "Update TEN Framework to latest commit
+          
+          🤖 Automated dependency update
+          
+          Co-Authored-By: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          echo "TEN_FRAMEWORK_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "TEN Framework already up to date"
+          echo "TEN_FRAMEWORK_UPDATED=false" >> $GITHUB_ENV
+        fi
+        
+    - name: Update Pipedream MCP reference
+      run: |
+        if [ -d "pipedream-mcp-reference" ]; then
+          echo "Updating Pipedream MCP reference..."
+          git submodule update --remote pipedream-mcp-reference
+          
+          if ! git diff --quiet pipedream-mcp-reference; then
+            git add pipedream-mcp-reference
+            git commit -m "Update Pipedream MCP reference to latest
+            
+            🤖 Automated dependency update
+            
+            Co-Authored-By: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            echo "PIPEDREAM_MCP_UPDATED=true" >> $GITHUB_ENV
+          else
+            echo "Pipedream MCP reference already up to date"
+            echo "PIPEDREAM_MCP_UPDATED=false" >> $GITHUB_ENV
+          fi
+        fi
+        
+    - name: Update MCP SDK dependencies
+      run: |
+        echo "Updating MCP integration dependencies..."
+        cd mcp-integration
+        
+        # Store current versions
+        CURRENT_MCP_VERSION=$(npm list @modelcontextprotocol/sdk --depth=0 2>/dev/null | grep @modelcontextprotocol/sdk | awk '{print $2}' | sed 's/@//' || echo "not-installed")
+        
+        # Update to latest
+        npm update @modelcontextprotocol/sdk
+        npm audit fix --force || true
+        
+        # Check if updated
+        NEW_MCP_VERSION=$(npm list @modelcontextprotocol/sdk --depth=0 | grep @modelcontextprotocol/sdk | awk '{print $2}' | sed 's/@//')
+        
+        cd ..
+        
+        if ! git diff --quiet mcp-integration/package.json mcp-integration/package-lock.json; then
+          git add mcp-integration/package.json mcp-integration/package-lock.json
+          git commit -m "Update MCP SDK and dependencies to latest versions
+          
+          Previous version: $CURRENT_MCP_VERSION
+          New version: $NEW_MCP_VERSION
+          
+          🤖 Automated dependency update
+          
+          Co-Authored-By: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          echo "MCP_SDK_UPDATED=true" >> $GITHUB_ENV
+          echo "MCP_SDK_VERSION=$NEW_MCP_VERSION" >> $GITHUB_ENV
+        else
+          echo "MCP SDK already up to date"
+          echo "MCP_SDK_UPDATED=false" >> $GITHUB_ENV
+          echo "MCP_SDK_VERSION=$NEW_MCP_VERSION" >> $GITHUB_ENV
+        fi
+        
+    - name: Check for Docker image updates
+      run: |
+        echo "Checking for latest Docker images..."
+        
+        # Check Node.js latest version
+        NODE_LATEST=$(curl -s https://api.github.com/repos/nodejs/node/releases/latest | jq -r '.tag_name' | sed 's/v//')
+        echo "Latest Node.js version: $NODE_LATEST"
+        echo "NODE_LATEST_VERSION=$NODE_LATEST" >> $GITHUB_ENV
+        
+        # Check Jitsi latest tag (this updates automatically with :latest tag)
+        echo "Jitsi Meet uses :latest tag - automatically updated on deployment"
+        
+    - name: Generate update summary
+      run: |
+        echo "## Dependency Update Summary" > update-summary.md
+        echo "" >> update-summary.md
+        echo "🕒 **Update Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> update-summary.md
+        echo "" >> update-summary.md
+        
+        if [ "$TEN_FRAMEWORK_UPDATED" = "true" ]; then
+          TEN_COMMIT=$(cd ten-framework && git rev-parse --short HEAD)
+          echo "✅ **TEN Framework:** Updated to commit \`$TEN_COMMIT\`" >> update-summary.md
+        else
+          echo "ℹ️ **TEN Framework:** No updates available" >> update-summary.md
+        fi
+        
+        if [ "$MCP_SDK_UPDATED" = "true" ]; then
+          echo "✅ **MCP SDK:** Updated to version \`$MCP_SDK_VERSION\`" >> update-summary.md
+        else
+          echo "ℹ️ **MCP SDK:** No updates available (current: \`$MCP_SDK_VERSION\`)" >> update-summary.md
+        fi
+        
+        if [ "$PIPEDREAM_MCP_UPDATED" = "true" ]; then
+          echo "✅ **Pipedream MCP:** Updated to latest commit" >> update-summary.md
+        else
+          echo "ℹ️ **Pipedream MCP:** No updates available" >> update-summary.md
+        fi
+        
+        echo "🐳 **Docker Images:** Using \`:latest\` tags (auto-updated on deployment)" >> update-summary.md
+        echo "📦 **Node.js Latest:** \`$NODE_LATEST_VERSION\`" >> update-summary.md
+        echo "" >> update-summary.md
+        echo "🚀 **Next Steps:** Deploy to Railway to apply updates" >> update-summary.md
+        
+        cat update-summary.md
+        
+    - name: Push updates
+      run: |
+        if git log --oneline -1 | grep -q "Update.*to latest"; then
+          echo "Pushing dependency updates..."
+          git push origin main
+          echo "UPDATES_PUSHED=true" >> $GITHUB_ENV
+        else
+          echo "No updates to push"
+          echo "UPDATES_PUSHED=false" >> $GITHUB_ENV
+        fi
+        
+    - name: Create issue for manual review
+      if: env.UPDATES_PUSHED == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('update-summary.md', 'utf8');
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `🔄 Automated Dependency Updates - ${new Date().toISOString().split('T')[0]}`,
+            body: `${summary}
+            
+            ## Action Required
+            
+            Dependencies have been automatically updated. Please:
+            
+            1. 🧪 **Test locally** with \`docker-compose up\`
+            2. 🚀 **Deploy to Railway** with \`./shared/scripts/deploy.sh\`
+            3. 🏥 **Verify health** with \`./shared/scripts/health-check.sh\`
+            4. ✅ **Close this issue** once deployment is verified
+            
+            ## Automated Changes
+            
+            - All dependencies updated to latest versions
+            - Docker images will pull \`:latest\` tags on next deployment
+            - Configuration remains unchanged
+            
+            /cc @${context.actor}`,
+            labels: ['dependencies', 'automated', 'needs-deployment']
+          });
+        
+    - name: Summary
+      run: |
+        echo "🎉 Dependency update workflow complete!"
+        if [ "$UPDATES_PUSHED" = "true" ]; then
+          echo "✅ Updates have been pushed to the repository"
+          echo "📋 A tracking issue has been created"
+          echo "🚀 Ready for deployment to Railway"
+        else
+          echo "ℹ️ All dependencies were already up to date"
+        fi

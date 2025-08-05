@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # Frontend Service (TEN Framework + Next.js)
+  frontend:
+    build:
+      context: .
+      dockerfile: services/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MCP_SERVER_URL=http://mcp-server:8080
+      - JITSI_DOMAIN=jitsi:8443
+      - JITSI_ROOM_PREFIX=ten-agent-dev
+      - DOPPLER_PROJECT=ten-chat-pipedream-mcp
+      - DOPPLER_CONFIG=frontend-prd
+    depends_on:
+      - mcp-server
+      - jitsi
+    volumes:
+      - ./ten-framework:/app/ten-framework:ro
+      - ./jitsi-integration:/app/src/jitsi-integration:ro
+    networks:
+      - ten-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # MCP Server Service (Model Context Protocol)
+  mcp-server:
+    build:
+      context: .
+      dockerfile: services/mcp-server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DOPPLER_PROJECT=ten-chat-pipedream-mcp
+      - DOPPLER_CONFIG=mcp-server-prd
+      - ENABLE_MCP_STDIO=false
+    volumes:
+      - ./mcp-integration:/app/mcp-integration:ro
+    networks:
+      - ten-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Jitsi Meet Service (WebRTC)
+  jitsi:
+    build:
+      context: .
+      dockerfile: services/jitsi/Dockerfile
+    ports:
+      - "8443:443"
+      - "8080:80"
+      - "10000:10000/udp"
+    environment:
+      - PUBLIC_URL=https://localhost:8443
+      - ENABLE_LETSENCRYPT=0
+      - ENABLE_HTTP_REDIRECT=1
+      - DISABLE_HTTPS=0
+      - DOCKER_HOST_ADDRESS=localhost
+      - JITSI_WEB_CONFIG_resolution=720
+      - JITSI_WEB_CONFIG_startWithAudioMuted=false
+      - JITSI_WEB_CONFIG_startWithVideoMuted=true
+      - DOPPLER_PROJECT=ten-chat-pipedream-mcp
+      - DOPPLER_CONFIG=jitsi-meet-prd
+    volumes:
+      - ./services/jitsi/config:/defaults:ro
+    networks:
+      - ten-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost/health", "||", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # PostgreSQL for conversation history (optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=ten_chat_history
+      - POSTGRES_USER=ten_user
+      - POSTGRES_PASSWORD=dev_password_change_in_production
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./shared/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - ten-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ten_user -d ten_chat_history"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for session management (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ten-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: redis-server --appendonly yes
+
+networks:
+  ten-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

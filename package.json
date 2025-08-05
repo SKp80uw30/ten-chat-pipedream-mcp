@@ -1,32 +1,57 @@
 {
   "name": "ten-mcp-voice-agent",
   "version": "1.0.0",
-  "description": "Voice AI agent with MCP integration for Railway deployment",
+  "description": "Modular voice AI agent with TEN Framework + MCP + Jitsi on Railway",
   "main": "index.js",
   "scripts": {
-    "start": "cd playground && npm start -- --hostname 0.0.0.0 --port ${PORT:-49483}",
-    "build": "npm install && npm run build-playground && npm run build-mcp",
-    "build-playground": "cd playground && npm install && npm run build",
-    "build-mcp": "cd mcp-integration && npm install",
-    "dev": "cd playground && npm run dev",
-    "railway:deploy": "railway up",
-    "postinstall": "cd mcp-integration && npm install && cd ../playground && npm install"
+    "start": "echo 'Use docker-compose up for local development or ./shared/scripts/deploy.sh for Railway'",
+    "dev": "docker-compose up --build",
+    "dev:detached": "docker-compose up -d --build",
+    "dev:logs": "docker-compose logs -f",
+    "dev:stop": "docker-compose down",
+    "dev:clean": "docker-compose down -v --remove-orphans",
+    "build": "docker-compose build",
+    "test": "npm run test:integration",
+    "test:integration": "jest tests/integration.test.js --testTimeout=30000",
+    "health": "./shared/scripts/health-check.sh",
+    "deploy": "./shared/scripts/deploy.sh",
+    "deploy:force": "./shared/scripts/deploy.sh --skip-confirmation",
+    "update": "./shared/scripts/update-dependencies.sh",
+    "setup:doppler": "./shared/doppler-configs/setup-doppler.sh",
+    "railway:init": "railway init --name ten-chat-pipedream-mcp",
+    "railway:login": "railway login",
+    "railway:status": "railway status",
+    "railway:logs": "railway logs --follow"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.4.0",
-    "express": "^4.18.2",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "license": "MIT",
   "keywords": [
     "voice-ai",
     "mcp",
     "pipedream",
     "ten-framework",
-    "railway"
-  ]
+    "jitsi-meet",
+    "railway",
+    "modular-architecture"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "node-fetch": "^3.3.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/ten-chat-pipedream.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/ten-chat-pipedream/issues"
+  },
+  "homepage": "https://github.com/your-username/ten-chat-pipedream#readme"
 }

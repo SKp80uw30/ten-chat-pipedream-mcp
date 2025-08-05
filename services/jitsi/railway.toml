@@ -1,0 +1,27 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Dockerfile"
+
+[deploy]
+restartPolicyType = "on-failure"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+
+[env]
+# Jitsi environment variables
+ENABLE_LETSENCRYPT = "1"
+ENABLE_HTTP_REDIRECT = "1"
+ENABLE_HSTS = "1"
+DISABLE_HTTPS = "0"
+ENABLE_IPV6 = "0"
+
+# Doppler configuration
+DOPPLER_PROJECT = "ten-chat-pipedream-mcp"  
+DOPPLER_CONFIG = "jitsi-meet-prd"
+SERVICE_TYPE = "jitsi"
+
+# Jitsi specific optimizations for Railway
+JITSI_WEB_CONFIG_resolution = "720"
+JITSI_WEB_CONFIG_startWithAudioMuted = "false"
+JITSI_WEB_CONFIG_startWithVideoMuted = "true"
+JITSI_WEB_CONFIG_requireDisplayName = "false"

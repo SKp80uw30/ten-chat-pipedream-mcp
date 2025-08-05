@@ -1,0 +1,14 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Dockerfile"
+
+[deploy]
+restartPolicyType = "on-failure"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+
+[env]
+NODE_ENV = "production"
+DOPPLER_PROJECT = "ten-chat-pipedream-mcp"
+DOPPLER_CONFIG = "frontend-prd"
+SERVICE_TYPE = "frontend"
